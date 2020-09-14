@@ -176,12 +176,83 @@ outerEnvironmentReference는 현재 호출된 함수가 **선언될 당시(과�
 ## 질문
 
 1. [ ? ] 은 변수 정보를 수집하는 과정을 더욱 이해하기 쉬운 방법으로 대체한 **가상의 개념**이다.
+
 2. 함수 선언문과 함수 표현식의 호이스팅 시 차이?
+
 3. 스코프 체이닝이 가능한 이유는 실행 컨텍스트의 어떤 부분 덕분인가?
 
+4. TDZ란?
 
+5. ```javascript
+   for (var i = 0; i < 10; i++) {
+     setTimeout(() => console.log(i));
+   } // ?
+   
+   for (let i = 0; i < 10; i++) {
+     setTimeout(() => console.log(i));
+   } // ?
+   ```
 
+6. 전역 실행컨텍스트  콜스택에서 사라지는 것이 맞는가? => 사라지는 것은 맞지만  outerEnvironmentReference에 의해 참조되고 있다면 가비지 컬렉션의 대상이 되지 않는다.
 
+   ```javascript
+   const outer = () => {
+     const inner = () => {
+       // 콜스택이 다 비워진 후에 동작한다. 즉, 전역 실행컨텍스트가 콜스택에서 제거된 이후 동작한다.
+       setTimeout(() => console.log(window), 3000);
+     }
+     inner();
+   }
+   
+   outer();
+   ```
+
+   
+
+7. 즉시 실행함수에 함수명을 사용할 수 있을까? => 사용할 수 있다. 재귀 호출 시 사용한다.
+
+8. 자바스크립트에는 두가지 체인이 있다. => 스코프 체인, 프로토 타입 체인
+
+9. 콜스택이 비어져야 이벤트 큐에서 스택에 밀어 넣을 수 있다.
+
+   ```javascript
+   for (let i = 0; i < 10000; i++) {
+     setTimeout(() => console.log(a));
+     console.log(1);
+   }
+   
+   // 1이 만번 찍히는 동안 a는 한번도 찍히지 못한다.
+   ```
+
+10. promise vs setTimeout vs requestAnimationFrame의 우선순위는?
+
+    => promise가 가장 우선 순위가 높다. requestAnimationFrame이 60 프레임에 있어서 우선 순위가 높다. 가장 우선 순위가 낮은 것은 setTimeout이다.
+
+    ```javascript
+    const set = setTimeout(() => {
+      console.log('settimeout')
+    }, 0);
+    
+    const request = window.requestAnimationFrame(() => {
+      console.log('requestAnimationFrame')
+      request()
+    });
+    
+    const pro = function(){
+      return new Promise((resolve) => {
+        console.log('promise')
+        resolve()
+      }).then(pro)
+    };
+    
+    set();
+    request();
+    pro();
+    ```
+
+11. requestidlecallback??? => 60프레임 사이사이 남는 시간에 실행 시킨다.
+
+12. Composit...????
 
 
 
@@ -192,4 +263,20 @@ outerEnvironmentReference는 현재 호출된 함수가 **선언될 당시(과�
 1. 호이스팅
 2. 함수 선언문은 선언과 할당, 즉 전체를 호이스팅한 반면 함수 표현식은 변수 선언부만 호이스팅 한다.
 3. LexicalEnvironment의 두번째 수집 자료인 outerEnvironmentReference
+
+
+
+
+
+## 참고 및 공부 해야할 내용
+
+[이벤트루프 - TOAST](https://meetup.toast.com/posts/89)
+
+[조쉬 스터디 팀블로그](https://github.com/im-d-team/Dev-Docs)
+
+[브라우저는 vsync를 어떻게 활용하고 있을까?](https://www.slideshare.net/deview/133-vsync)
+
+[최신 브라우저 내부 살펴보기 - naver d2](https://d2.naver.com/helloworld/2922312)
+
+[실행컨텍스트 - 조쉬](https://seonhyungjo.github.io/Javascript-Book/core-javascript/2-%EC%8B%A4%ED%96%89-%EC%BB%A8%ED%85%8D%EC%8A%A4%ED%8A%B8.html)
 

@@ -518,3 +518,99 @@ report.add(60, 85, 95);
 console.log(report.sum, report.count, report.average());
 ```
 
+
+
+
+
+
+
+
+
+## 질문
+
+1. 아래 코드를 ES6 문법으로 변환하시오.
+
+   ```javascript
+   // ES5
+   var report = {
+       sum: 0,
+       count: 0,
+       add: function () {
+           var args = Array.prototype.slice.call(arguments);
+   
+           args.forEach(function (entry) {
+               this.sum += entry;
+               ++this.count;
+           }, this);
+       },
+       average: function () {
+           return this.sum / this.count;
+       }
+   };
+   
+   report.add(60, 85, 95);
+   console.log(report.sum, report.count, report.average());
+   ```
+
+2. 아래 코드의 결과값은 ?
+
+   ```javascript
+   function Person(name) {
+     this.name = name;
+   }
+   
+   // this를 widow를 바라보지 않고 그 함수를 쓰고 싶을 대
+   Person.prototype.doSomething = function (callback) {
+     callback();
+   };
+   
+   function foo() {
+     console.log(this.name); //??
+   }
+   
+   const person = new Person('Lee');
+   
+   person.doSomething(foo);
+   ```
+
+3. 렉시컬 스코프와 this 바인딩이 결정되는 시기는 각각 언제인가?
+
+4. spread operator와 전개 연산자와의 차이???
+5. iterable 만들어보기, generator로 async / await 만들어보기
+
+
+
+
+
+## 답
+
+1. ```javascript
+   // ES6
+   const report = {
+       sum: 0,
+       count: 0,
+       add () {
+           const args = [...arguments];
+           args.forEach(entry => {
+               this.sum += entry;
+               ++this.count;
+           });
+       },
+       average () {
+           return this.sum / this.count;
+       }
+   }
+   
+   report.add(60, 85, 95);
+   console.log(report.sum, report.count, report.average());
+   ```
+
+2. ```
+   // =>  window.name은 브라우저 창의 이름을 나타내는 빌트인 프로퍼티이다. window.name의 기본값은 ''이다.
+   // 만약 Node.js 환경에서 실행하면 undefined가 출력된다.
+   ```
+
+3. **렉시컬 스코프와 this 바인딩은 결정 시기가 다르다.**
+
+   함수의 상위 스코프를 결정하는 방식인 렉시컬 스코프(Lexical scope)는 함수 정의가 평가되어 함수 객체가 생성되는 시점에 상위 스코프를 결정한다. this에 바인딩될 객체는 함수 호출 시점에 결정된다.
+

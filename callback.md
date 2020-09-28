@@ -1,4 +1,4 @@
-callback
+# callback
 
 
 
@@ -59,6 +59,7 @@ console.log(newArr2);
 콜백 함수도 함수이기 때문에 기본적으로 this가 전역객체를 참조하지만, 제어권을 넘겨받을 코드에서 콜백 함수에 별도로 this가 될 대상을 지정한 경우에는 그 대상을 참조하게 된다.
 
 ```javascript
+// map 함수 구현
 Array.prototype.map = function(callback, thisArg) {
     let mappedArr = [];
    	console.log('this', this)
@@ -89,7 +90,7 @@ const obj = {
 }
 
 obj.logValues(1,2)
-[4,5,6].forEach(obj.logValues)
+[4,5,6].forEach(obj.logValues) // window
 
 
 
@@ -102,6 +103,17 @@ const obj = {
 }
 
 [4,5,6].forEach(obj.logValues, obj.vals) // ??
+
+
+
+
+
+
+
+// 답
+[1, 2, 3] 1 4 0
+[1, 2, 3] 2 5 1
+[1, 2, 3] 3 6 2
 ```
 
 
@@ -121,7 +133,9 @@ setTimeout(obj1.func, 1000); // ?? 해당 결과가 나오는 이유는?
 
 
 
-// 스코프 체인을 타고 전역에 있는 obj1을 찾는다.s
+
+// 답
+// 스코프 체인을 타고 전역에 있는 obj1을 찾는다.
 ```
 
 
@@ -154,10 +168,15 @@ const obj3 = { name: 'obj3' }
 const callback3 = obj1.func.call(obj3)
 setTimeout(callback3, 2000)
 
-// 결과는???
+// 이 코드를 한번에 실행한 결과는???
 
 
 
+
+
+
+
+// 답
 // obj3이 3 번 찍힌다. setTimeout이 비동기로 동작하기 때문에 동기 코드가 모두 실행된 후 callback이 호출된다.
 // this는 호출 시점에 바인딩 된다. 호출 시점에 this는 모두 obj3로 바인딩 되어 있고 따라서 obj3만 3번 찍히는 결과가 나온다. 
 ```
@@ -278,7 +297,8 @@ addCoffee('에스프레소')() // promise를 return, newName이 resolve 된다.
 	.then(addCoffee('카페라떼'))
 	.then(console.log)
 
-// promsie 단축 표기법
+// 받아온 값을
+다음 콜백 함수에 바로 인수로 사용할 경우 단축하여 표기할 수 있다.
 addCoffee('에스프레소')()
 	.then(newName => addCoffee('아메리카노')(newName))
 	.then(newName => addCoffee('아메리카노')(newName))
@@ -339,7 +359,56 @@ const coffeeMaker = async function () {
 coffeeMaker();
 ```
 
-ES2017에서는 가독성이 뛰어나면서도 작성법이 간단한 새로운 기능이 추가됐는데,  바로 async / await이다. 비동기 작업을 수행하고자 하는 함수 앞에 async를 표기하고, 함수 내부에서 실질적인 비동기 작업이 필요한 위치마다 await를 표기하는 것만으로 뒤의 내용을 promise로 자동 전환하고, 해당 내용이 resolve된 이후에야 다음으로 진행한다. **즉, promise의 then과 흡사한 효과를 얻을 수 있다.**
+ES2017에서는 가독성이 뛰어나면서도 작성법이 간단한 새로운 기능이 추가됐는데,  바로 async / await이다. 비동기 작업을 수행하고자 하는 함수 앞에 async를 표기하고, 함수 내부에서 실질적인 비동기 작업이 필요한 위치마다 await를 표기하는 것만으로 뒤의 내용을 promise로 자동 전환하고, 해당 내용이 resolve된 이후에야 다음으로 진행한다. **즉, promise의 then과 흡사한 효과를 얻을 수 있다.** `await`는 `promise.then`보다 좀 더 세련되게 프라미스의 `result` 값을 얻을 수 있도록 해주는 문법이다. `promise.then`보다 가독성 좋고 쓰기도 쉽다.
+
+
+
+
+
+`await`는 최상위 레벨 코드에서 작동하지 않는다.
+
+```javascript
+// 최상위 레벨 코드에선 문법 에러가 발생함 
+let response = await fetch('/article/promise-chaining/user.json'); 
+let user = await response.json();
+
+// 하지만 익명 async 함수로 코드를 감싸면 최상위 레벨 코드에도 await를 사용할 수 있다.
+
+(async () => {
+  let response = await fetch('/article/promise-chaining/user.json');
+  let user = await response.json();
+  ...
+})();
+```
+
+
+
+**에러 핸들링**
+
+프라미스가 정상적으로 이행되면 `await promise`는 프라미스 객체의 `result`에 저장된 값을 반환한다. 반면 프라미스가 거부되면 마치 `throw`문을 작성한 것처럼 에러가 던져진다.
+
+`await`가 던진 에러는 `throw`가 던진 에러를 잡을 때처럼 `try..catch`를 사용해 잡을 수 있다.
+
+```javascript
+async function f() {
+
+  try {
+    let response = await fetch('http://유효하지-않은-주소');
+  } catch(err) {
+    alert(err); // TypeError: failed to fetch
+  }
+}
+
+f();
+```
+
+**`async/await`와 `promise.then/catch`**
+
+`async/await`을 사용하면 `await`가 대기를 처리해주기 때문에 `.then`이 거의 필요하지 않다. 여기에 더하여 `.catch` 대신 일반 `try..catch`를 사용할 수 있다는 장점도 생긴다. 항상 그러한 것은 아니지만, `promise.then`을 사용하는 것보다 `async/await`를 사용하는 것이 대개는 더 편리하다.
+
+그런데 문법 제약 때문에 `async`함수 바깥의 최상위 레벨 코드에선 `await`를 사용할 수 없다. 그렇기 때문에 관행처럼 `.then/catch`를 추가해 최종 결과나 처리되지 못한 에러를 다룬다.
+
+
 
 
 
@@ -370,3 +439,14 @@ getName() // ? (2)
 
 
 
+
+
+
+
+
+
+## 참고자료
+
+[모던 자바스크립트 튜토리얼 async/await](https://ko.javascript.info/async-await#ref-804)
+
+[코어 자바스크립트](https://www.kyobobook.co.kr/product/detailViewKor.laf?mallGb=KOR&ejkGb=KOR&barcode=9791158391720&orderClick=JAj)

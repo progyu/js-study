@@ -102,18 +102,11 @@ const obj = {
     }
 }
 
-[4,5,6].forEach(obj.logValues, obj.vals) // ??
+const arr = [4,5,6];
+arr.forEach(obj.logValues, obj.vals) // ??
 
 
-
-
-
-
-
-// 답
-[1, 2, 3] 1 4 0
-[1, 2, 3] 2 5 1
-[1, 2, 3] 3 6 2
+// 만약 logValues 메서드가 화살표 함수라면 결과는 어떻게 달라질까??
 ```
 
 
@@ -410,8 +403,6 @@ f();
 
 
 
-
-
 ```javascript
 await Promise.resolve(5) // ? (1)
 
@@ -427,6 +418,79 @@ getName() // ? (2)
 
 
 
+```javascript
+// 다음 코드들의 결과를 예측해보자.
+// 이벤트 루프와 콜스택의 관점에서 코드를 분석 해보자.
+
+// (1)
+function test1 () {
+  return Promise.resolve(1)
+}
+async  function test2 () {
+  const a = await test1()
+  console.log('test', a)
+  return a
+}
+const t = test2()
+console.log(t.then(e => console.log(e)))
+
+// (2)
+function test1 () {
+  return Promise.resolve(1)
+}
+function test3 (a,b,c) {
+  return Promise.all([a, b,  c])
+}
+async  function test2 () {
+  const a = test1()
+  const b = test1()
+  const d = test1()
+  const c = await test3(a,b,d)
+  console.log('test1', c)
+  return a
+}
+const t = test2()
+console.log('test2', t.then(e => console.log('test3', e)))
+
+// (3)
+function test1 () {
+  return Promise.resolve(1)
+}
+function test3 (a,b,c) {
+  return Promise.all([a, b,  c])
+}
+async  function test2 () {
+  const a = test1()
+  const b = test1()
+  const d = test1()
+  const [c, e, f] = await test3(a,b,d)
+  console.log('test1', c, e, f)
+  return a
+}
+const t = test2()
+console.log('test2', t.then(e => console.log('test3', e)))
+
+// (4)
+function test1 () {
+  return Promise.resolve(1)
+}
+function test3 (a,b,c) {
+  return Promise.all([a, b,  c])
+}
+async  function test2 () {
+  const a = test1()
+  const b = test1()
+  const d = test1()
+  const [c, ...e] = await test3(a,b,d)
+  console.log('test1', c, e)
+  return a
+}
+const t = test2()
+console.log('test2', t.then(e => console.log('test3', e)))
+```
+
+
+
 ## 정리
 
 - 콜백 함수는 다른 코드에 인자로 넘겨줌으로써 그 제어권도 함께 위임한 함수이다.
@@ -436,10 +500,6 @@ getName() // ? (2)
   - 콜백 함수의 **this가 무엇을 바라보도록 할지**가 정해져 있는 경우도 있다. 정하지 않은 경우에는 전역 객체를 바라본다. 사용자 임의로 this를 바꾸고 싶을 경우 bind 메서드를 활용한다.
 - 어떤 함수에 인자로 메서드를 전달하더라도 이는 결국 함수로서 실행된다.
 - 비동기 제어를 위해 콜백 함수를 사용하다 보면 콜백 지옥에 빠지기 쉽다. 최근 ECMAScript에는 Promise, Generator, async/await 등 콜백 지옥에서 벗어날 수 있는 훌륭한 방법들이 속속 등장하고 있다.
-
-
-
-
 
 
 

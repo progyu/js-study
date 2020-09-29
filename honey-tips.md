@@ -113,31 +113,34 @@ document.getElementById('someelem').addEventListener('click', callback(x, y));
 ## 모듈 패턴 이미지 처리
 
 ```javascript
-const module = (function () {
-  const callbackFunc = {};
-  const io = new IntersectionObserver((entries, observer) => {
-    entries.forEach((entry) => {
-      if (!entry.isIntersecting) return;
-      const target = entry.target;
-      const _uid = target.getAttribute('_uid');
-      if (callbackFunc[_uid] && typeof callbackFunc[_uid] === 'function') {
-        callbackFunc[_uid]()
-        delete callbackFunc[_uid]
-      }
-      io.unobserve(target)
-    })
-  })
-  return {
-    imageCache (src) {
-      const img = new window.Image()
-      img.src = src
-      return new Promise((resolve, reject) => {
-        img.onload = () => resolve(img.src)
+const ImageModule = (function () {
+  const callbackFuncMap = new Map();
+  let instance = null;
+  function init() {
+    return new IntersectionObserver((entries, observer) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        const target = entry.target;
+        const _uid = target.getAttribute('_uid');
+        if (callbackFuncMap.has(_uid) && typeof callbackFuncMap.get(_uid) === 'function') {
+          const callback = callbackFuncMap.get(_uid);
+          callbackFuncMap.delete(_uid);
+          callback();
+        }
+        observer.unobserve(target)
       })
+    })
+  }
+  return {
+    getInstance () {
+      if (!instance) instance = init();
+      return instance;
     },
-    setObserve (target, key, callback) {
-      io.observe(target)
-      callbackFunc[key] = callback;
+    addToObserve(target, callback) {
+      const imageObserver = this.getInstance();
+      imageObserver.observe(target)
+      const key = target.getAttribute('_uid');
+      callbackFuncMap.set(key, callback);
     }
   }
 })()

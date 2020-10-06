@@ -40,7 +40,12 @@ components: {
 }
 ```
 
+```javascript
+// 이미지 자원 동적 임포트
+import youtubeIcon from '@/assets/images/icons/youtube.png'
 
+<img src="${youtubeIcon}"/>
+```
 
 
 
@@ -144,5 +149,19 @@ const ImageModule = (function () {
     }
   }
 })()
+```
+
+
+
+## 하드웨어 가속화
+
+[하드웨어 가속에 대한 이해와 적용](https://d2.naver.com/helloworld/2061385)
+
+[https://github.com/SeonHyungJo/FrontEnd-Note/blob/master/Browser/%ED%95%98%EB%93%9C%EC%9B%A8%EC%96%B4_%EA%B0%80%EC%86%8D%ED%99%94.md](https://github.com/SeonHyungJo/FrontEnd-Note/blob/master/Browser/하드웨어_가속화.md)
+
+```css
+// 아래와 같은 방식 등으로 하드웨어 가속화를 사용할 수 있다. 
+
+transform: translateZ(0);
 ```
 

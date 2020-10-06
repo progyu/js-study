@@ -24,7 +24,7 @@ MDN에서는 클로저에 대해 "**클로저는 함수와 그 함수가 선언�
 
 ```javascript
 // 외부 함수의 변수를 참조하는 내부 함수
-const outer = functon () {
+const outer = function () {
   let count = 1
   const inner = function () {
     console.log(++count)
@@ -34,7 +34,7 @@ const outer = functon () {
 outer()
 
 // 외부 함수의 변수를 참조하는 내부 함수(2)
-const outer = functon () {
+const outer = function () {
   let count = 1
   const inner = function () {
     return ++count
@@ -51,7 +51,7 @@ inner 함수 내부에서는 count 변수를 선언하지 않았기 때문에 en
 
 ```javascript
 // 외부 함수의 변수를 참조하는 내부 함수(2)
-const outer = functon () {
+const outer = function () {
   let count = 1
   const inner = function () {
     return ++count
@@ -316,7 +316,7 @@ const moveHandler = function (e) {
 }
 
 const wheelHandler = function (e) {
-  console.log('move event 처리')
+  console.log('wheel event 처리')
 }
 
 document.body.addEventListener('mousemove', debounce('move', moveHandler, 500))
@@ -368,3 +368,96 @@ const getInformation = function (baseUrl) {
 const getInformation = baseUrl => path => id => fetch(baseUrl + path + '/' + )
 ```
 
+
+
+## 문제
+
+1.  여러 개의 인자를 받는 함수를 하나의 인자만 받는 함수로 나눠서 순차적으로 호출될 수 있게 체인 형태로 구성한 함수는 무엇인가?
+
+2. 다음 중 클로저를 이용하지 않은 코드는 몇번인가?
+
+   ```javascript
+   // (1)
+   (function () {
+     let a = 0
+     let interValid = null
+     const inner = function () {
+       if (++a >= 10) {
+         clearInterval(interValid)
+       }
+       console.log(a)
+     }
+     interValid = setInterval(inner, 1000)
+   })();
+   
+   // (2)
+   (function () {
+     let count = 0
+     const button = document.createElement('button')
+     button.innerText = '클릭!!!'
+     button.addEventListener('click', function () {
+       console.log(++count, 'clicked')
+     })
+     document.body.appendChild(button)
+   })();
+   
+   // (3)
+   const outer = function () {
+     let count = 1
+     const inner = function () {
+       return ++count
+     }
+     return inner()
+   }
+   const outer2 = outer()
+   console.log(outer2)
+   ```
+
+3. ```javascript
+   // 다음 코드의 실행 결과는?
+   const debounce = (eventName, func, wait) => {
+     let timeoutId = null
+     return (event) => {
+       console.log(eventName, '이벤트 발생')
+       clearTimeout(timeoutId)
+       timeoutId = setTimeout(event => func(event), wait)
+     }
+   }
+   
+   const moveHandler = (e) => console.log(`${e} move event 처리`)
+   
+   document.body.addEventListener('mousemove', debounce('move', moveHandler, 500))
+   ```
+
+
+
+
+
+
+
+### 해답
+
+1. 커링함수
+
+2.  (3)
+
+3. move 이벤트 발생
+   undefined move event 처리
+
+   ```javascript
+   // 제대로 동작하는 코드
+   const debounce = (eventName, func, wait) => {
+     let timeoutId = null
+     return (event) => {
+       console.log(eventName, '이벤트 발생')
+       clearTimeout(timeoutId)
+       timeoutId = setTimeout(() => func(event), wait)
+     }
+   }
+   
+   const moveHandler = (e) => console.log(`${e} move event 처리`)
+   
+   document.body.addEventListener('mousemove', debounce('move', moveHandler, 500))
+   ```
+
+   
